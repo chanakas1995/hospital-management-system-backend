@@ -5,17 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.chanaka.icbt.abchms.AbchmsApplication;
 import com.chanaka.icbt.abchms.custom.AlreadyInUseException;
 import com.chanaka.icbt.abchms.models.Patient;
-import com.chanaka.icbt.abchms.repositories.PatientRepository;
 import com.github.javafaker.Faker;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,27 +23,17 @@ public class PatientServiceTest {
 	@Autowired
 	private PatientService patientService;
 
-	@Autowired
-	private PatientRepository patientRepository;
-
 	Faker faker = new Faker();
-
-	@BeforeEach
-	void clearTables() {
-		patientRepository.deleteAll();
-	}
 
 	@Test
 	void testIndex() throws AlreadyInUseException {
 		Patient patient1 = generatePatient();
 		Patient patient2 = generatePatient();
-		Patient createdPatient1 = patientService.store(patient1);
-		Patient createdPatient2 = patientService.store(patient2);
-		List<Patient> createdPatientsList = new ArrayList<>();
-		createdPatientsList.add(createdPatient1);
-		createdPatientsList.add(createdPatient2);
+		patientService.store(patient1);
+		patientService.store(patient2);
 		List<Patient> receivedPatientsList = patientService.index();
-		assertEquals(createdPatientsList, receivedPatientsList);
+		assertTrue(receivedPatientsList.contains(patient1));
+		assertTrue(receivedPatientsList.contains(patient2));
 	}
 
 	@Test

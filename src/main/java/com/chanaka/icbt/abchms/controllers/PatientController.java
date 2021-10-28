@@ -10,6 +10,7 @@ import com.chanaka.icbt.abchms.custom.DataConverter;
 import com.chanaka.icbt.abchms.custom.ResponseBuilder;
 import com.chanaka.icbt.abchms.custom.ResponseType;
 import com.chanaka.icbt.abchms.dtos.PatientGeneralDTO;
+import com.chanaka.icbt.abchms.dtos.PatientOptionDTO;
 import com.chanaka.icbt.abchms.forms.PatientForm;
 import com.chanaka.icbt.abchms.models.Patient;
 import com.chanaka.icbt.abchms.services.PatientService;
@@ -36,6 +37,13 @@ public class PatientController {
 	public ResponseEntity<?> index() {
 		Stream<Object> data = patientService.index().stream()
 				.map(patient -> DataConverter.convert(patient, PatientGeneralDTO.class));
+		return ResponseBuilder.build("Patients", ResponseType.FOUND, data);
+	}
+
+	@GetMapping(path = "/options")
+	public ResponseEntity<?> getOptions() {
+		Stream<Object> data = patientService.index().stream()
+				.map(patient -> DataConverter.convert(patient, PatientOptionDTO.class));
 		return ResponseBuilder.build("Patients", ResponseType.FOUND, data);
 	}
 

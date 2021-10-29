@@ -4,12 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import com.chanaka.icbt.abchms.AbchmsApplication;
-import com.chanaka.icbt.abchms.custom.AlreadyInUseException;
 import com.chanaka.icbt.abchms.models.Admission;
 import com.chanaka.icbt.abchms.models.Branch;
 import com.chanaka.icbt.abchms.models.Patient;
@@ -39,7 +41,7 @@ public class AdmissionServiceTest {
 	Faker faker = new Faker();
 
 	@Test
-	void testIndex() throws AlreadyInUseException {
+	void testIndex() {
 		Admission admission1 = generateAdmission();
 		Admission admission2 = generateAdmission();
 		admissionService.store(admission1);
@@ -50,21 +52,22 @@ public class AdmissionServiceTest {
 	}
 
 	@Test
-	void testFind() throws AlreadyInUseException {
+	void testFind() {
+		Admission admission = generateAdmission();
+		Admission createdAdmission = admissionService.store(admission);
+		Optional<Admission> found = admissionService.find(createdAdmission.getUuid());
+		assertEquals(found.get(), admission);
+	}
+
+	@Test
+	void testStore() {
 		Admission admission = generateAdmission();
 		Admission createdAdmission = admissionService.store(admission);
 		assertEquals(createdAdmission, admission);
 	}
 
 	@Test
-	void testStore() throws AlreadyInUseException {
-		Admission admission = generateAdmission();
-		Admission createdAdmission = admissionService.store(admission);
-		assertEquals(createdAdmission, admission);
-	}
-
-	@Test
-	void testUpdate() throws AlreadyInUseException {
+	void testUpdate() {
 		Admission admission = generateAdmission();
 		Admission createdAdmission = admissionService.store(admission);
 		createdAdmission.setNotes(faker.lorem().sentence());
@@ -73,7 +76,7 @@ public class AdmissionServiceTest {
 	}
 
 	@Test
-	void testDelete() throws AlreadyInUseException {
+	void testDelete() {
 		Admission admission = generateAdmission();
 		Admission createdAdmission = admissionService.store(admission);
 		boolean deleted = admissionService.delete(createdAdmission.getUuid());
@@ -81,6 +84,27 @@ public class AdmissionServiceTest {
 		deleted = admissionService.delete(createdAdmission.getUuid());
 		assertFalse(deleted);
 		assertEquals(createdAdmission, admission);
+	}
+
+	@Test
+	void testTransfer() {
+		Admission admission = generateAdmission();
+		Admission created = admissionService.store(admission);
+		Admission transfer = generateAdmission();
+		Admission transferred = admissionService.transfer(created.getUuid(), transfer);
+		Optional<Admission> foundTransferred = admissionService.find(transferred.getUuid());
+		assertEquals(new SimpleDateFormat("yyyy-MM-dd").format(new Date()),
+				new SimpleDateFormat("yyyy-MM-dd").format(foundTransferred.get().getAdmissionDate()));
+	}
+
+	@Test
+	void testDischarge() {
+		Admission admission = generateAdmission();
+		Admission created = admissionService.store(admission);
+		Admission discharged = admissionService.discharge(created.getUuid());
+		Optional<Admission> foundTransferred = admissionService.find(discharged.getUuid());
+		assertEquals(new SimpleDateFormat("yyyy-MM-dd").format(new Date()),
+				new SimpleDateFormat("yyyy-MM-dd").format(foundTransferred.get().getDischargedDate()));
 	}
 
 	private Admission generateAdmission() {
@@ -110,6 +134,7 @@ public class AdmissionServiceTest {
 			wardRepository.save(ward);
 		}
 		branch.setWards(wards);
+		branchRepository.save(branch);
 		return branch;
 	}
 

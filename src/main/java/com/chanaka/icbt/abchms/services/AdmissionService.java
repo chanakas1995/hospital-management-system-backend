@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.chanaka.icbt.abchms.custom.AlreadyInUseException;
 import com.chanaka.icbt.abchms.models.Admission;
 import com.chanaka.icbt.abchms.repositories.AdmissionRepository;
 import com.chanaka.icbt.abchms.repositories.BranchRepository;
@@ -33,7 +32,7 @@ public class AdmissionService {
 		return admissionRepository.findAll();
 	}
 
-	public Admission store(Admission admission) throws AlreadyInUseException {
+	public Admission store(Admission admission) {
 		admission.generateUuid();
 		admission.setAdmissionDate(new Date());
 		return admissionRepository.save(bindRelationships(admission));
@@ -43,7 +42,19 @@ public class AdmissionService {
 		return admissionRepository.findByUuid(uuid);
 	}
 
-	public Admission update(String uuid, Admission admission) throws AlreadyInUseException {
+	public Admission transfer(String uuid, Admission admission) {
+		Optional<Admission> currentAdmission = admissionRepository.findByUuid(uuid);
+		if (currentAdmission.isPresent()) {
+			currentAdmission.get().setDischargedDate(new Date());
+			admission.setAdmissionDate(new Date());
+			admission.generateUuid();
+			admissionRepository.save(bindRelationships(admission));
+			return admission;
+		}
+		return null;
+	}
+
+	public Admission update(String uuid, Admission admission) {
 		Optional<Admission> currentAdmission = admissionRepository.findByUuid(uuid);
 		if (currentAdmission.isPresent()) {
 			admission.setId(currentAdmission.get().getId());
@@ -51,6 +62,17 @@ public class AdmissionService {
 			admission.setUuid(uuid);
 			admissionRepository.save(bindRelationships(admission));
 			return admission;
+		}
+		return null;
+	}
+
+	public Admission discharge(String uuid) {
+		Optional<Admission> admission = admissionRepository.findByUuid(uuid);
+		if (admission.isPresent()) {
+			Admission dischargedAdmission = admission.get();
+			dischargedAdmission.setDischargedDate(new Date());
+			admissionRepository.save(bindRelationships(dischargedAdmission));
+			return dischargedAdmission;
 		}
 		return null;
 	}

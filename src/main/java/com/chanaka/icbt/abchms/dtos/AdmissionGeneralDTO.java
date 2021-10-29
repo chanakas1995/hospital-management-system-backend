@@ -14,7 +14,7 @@ public class AdmissionGeneralDTO {
 	private String uuid;
 	private String notes;
 	private Date admissionDate;
-	private Date dischargeDate;
+	private Date dischargedDate;
 	private BranchOptionDTO branch;
 	private WardOptionDTO ward;
 	private PatientOptionDTO patient;
@@ -23,7 +23,7 @@ public class AdmissionGeneralDTO {
 		return new SimpleDateFormat("yyyy-MM-dd").format(admissionDate);
 	}
 
-	public String getDischargeDate() {
-		return dischargeDate == null ? null : new SimpleDateFormat("yyyy-MM-dd").format(dischargeDate);
+	public String getdischargedDate() {
+		return dischargedDate == null ? null : new SimpleDateFormat("yyyy-MM-dd").format(dischargedDate);
 	}
 }

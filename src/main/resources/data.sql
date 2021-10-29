@@ -12,5 +12,5 @@ INSERT INTO `wards` (`uuid`, `ward_name`, `doctor_in_charge`,`branch_id`,`price_
 INSERT INTO `patients` (`uuid`, `name`, `nic`,`email`,`mobile`,`gender`,`blood_group`,`date_of_birth`,`address`,`contact_person_name`,`contact_person_mobile`,`contact_person_email`) VALUES
   ('268b2fb5-60f2-429a-b951-e87295749131', 'Nimal Perera', '711523658V', 'nimal@example.com','0711111111','Male','A+','1971-07-28','Main Street, Matale','Sunil Nishantha','0712222222','sunil@example.com');
 
-INSERT INTO `admissions` (`uuid`, `admission_date`, `discharge_date`,`notes`,`branch_id`,`patient_id`,`ward_id`) VALUES
+INSERT INTO `admissions` (`uuid`, `admission_date`, `discharged_date`,`notes`,`branch_id`,`patient_id`,`ward_id`) VALUES
   ('624f3bf6-8650-49ae-aadb-516bb04fb2a9', '2021-10-20', null, 'Back pain and headache','1','1','1');

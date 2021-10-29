@@ -11,4 +11,6 @@ public class Texts {
 	public static final String DELETED = " has been deleted successfully";
 	public static final String SERVER_ERROR = "Something went wrong please contact the admin";
 	public static final String ALREADY_IN_USE = " is already in use";
+	public static final String PATIENT_DISCHARGED = "Patient has been duscharged successfully";
+	public static final String PATIENT_TRANSFERED = "Patient has been transferred successfully";
 }

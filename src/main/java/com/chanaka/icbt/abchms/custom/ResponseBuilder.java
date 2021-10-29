@@ -8,6 +8,8 @@ public class ResponseBuilder {
 	public static ResponseEntity<Object> build(String message, ResponseType responseType, Object data) {
 
 		switch (responseType) {
+		case OK:
+			return ResponseEntity.status(HttpStatus.OK).body(new JsonResponse(message, data));
 		case FOUND:
 			return ResponseEntity.status(HttpStatus.OK).body(new JsonResponse(message + Texts.FOUND, data));
 		case NOT_FOUND:

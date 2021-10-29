@@ -32,7 +32,7 @@ public class Admission {
 	private String uuid;
 	private String notes;
 	private Date admissionDate;
-	private Date dischargeDate;
+	private Date dischargedDate;
 	@JsonManagedReference
 	@ManyToOne
 	@JoinColumn(name = "branch_id", nullable = false)

@@ -5,10 +5,10 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
-import com.chanaka.icbt.abchms.custom.AlreadyInUseException;
 import com.chanaka.icbt.abchms.custom.DataConverter;
 import com.chanaka.icbt.abchms.custom.ResponseBuilder;
 import com.chanaka.icbt.abchms.custom.ResponseType;
+import com.chanaka.icbt.abchms.custom.Texts;
 import com.chanaka.icbt.abchms.dtos.AdmissionGeneralDTO;
 import com.chanaka.icbt.abchms.forms.AdmissionForm;
 import com.chanaka.icbt.abchms.models.Admission;
@@ -41,15 +41,20 @@ public class AdmissionController {
 
 	@PostMapping()
 	public ResponseEntity<?> store(@Valid @RequestBody AdmissionForm admissionForm) {
-		try {
-			Admission admission = (Admission) DataConverter.convert(admissionForm, Admission.class);
-			Admission created = admissionService.store(admission);
-			AdmissionGeneralDTO createdAdmission = (AdmissionGeneralDTO) DataConverter.convert(created,
-					AdmissionGeneralDTO.class);
-			return ResponseBuilder.build("Admission", ResponseType.CREATED, createdAdmission);
-		} catch (AlreadyInUseException e) {
-			return e.getJsonResponse();
-		}
+		Admission admission = (Admission) DataConverter.convert(admissionForm, Admission.class);
+		Admission created = admissionService.store(admission);
+		AdmissionGeneralDTO createdAdmission = (AdmissionGeneralDTO) DataConverter.convert(created,
+				AdmissionGeneralDTO.class);
+		return ResponseBuilder.build("Admission", ResponseType.CREATED, createdAdmission);
+	}
+
+	@PostMapping("/transfer/{uuid}")
+	public ResponseEntity<?> transfer(@PathVariable String uuid, @Valid @RequestBody AdmissionForm admissionForm) {
+		Admission admission = (Admission) DataConverter.convert(admissionForm, Admission.class);
+		Admission created = admissionService.transfer(uuid, admission);
+		AdmissionGeneralDTO createdAdmission = (AdmissionGeneralDTO) DataConverter.convert(created,
+				AdmissionGeneralDTO.class);
+		return ResponseBuilder.build(Texts.PATIENT_TRANSFERED, ResponseType.OK, createdAdmission);
 	}
 
 	@GetMapping(path = "/{uuid}")
@@ -65,18 +70,25 @@ public class AdmissionController {
 
 	@PutMapping(path = "/{uuid}")
 	public ResponseEntity<?> update(@PathVariable String uuid, @Valid @RequestBody AdmissionForm admissionForm) {
-		try {
-			Admission admission = (Admission) DataConverter.convert(admissionForm, Admission.class);
-			Admission updated = admissionService.update(uuid, admission);
-			if (updated == null) {
-				return ResponseBuilder.build("Admission", ResponseType.NOT_FOUND, null);
-			}
-			AdmissionGeneralDTO updatedAdmission = (AdmissionGeneralDTO) DataConverter.convert(admission,
-					AdmissionGeneralDTO.class);
-			return ResponseBuilder.build("Admission", ResponseType.UPDATED, updatedAdmission);
-		} catch (AlreadyInUseException e) {
-			return e.getJsonResponse();
+		Admission admission = (Admission) DataConverter.convert(admissionForm, Admission.class);
+		Admission updated = admissionService.update(uuid, admission);
+		if (updated == null) {
+			return ResponseBuilder.build("Admission", ResponseType.NOT_FOUND, null);
 		}
+		AdmissionGeneralDTO updatedAdmission = (AdmissionGeneralDTO) DataConverter.convert(admission,
+				AdmissionGeneralDTO.class);
+		return ResponseBuilder.build("Admission", ResponseType.UPDATED, updatedAdmission);
+	}
+
+	@PutMapping(path = "/discharge/{uuid}")
+	public ResponseEntity<?> discharge(@PathVariable String uuid) {
+		Admission discharged = admissionService.discharge(uuid);
+		if (discharged != null) {
+			AdmissionGeneralDTO dischargedAdmission = (AdmissionGeneralDTO) DataConverter.convert(discharged,
+					AdmissionGeneralDTO.class);
+			return ResponseBuilder.build(Texts.PATIENT_DISCHARGED, ResponseType.OK, dischargedAdmission);
+		}
+		return ResponseBuilder.build("Admission", ResponseType.NOT_FOUND, null);
 	}
 
 	@DeleteMapping(path = "/{uuid}")

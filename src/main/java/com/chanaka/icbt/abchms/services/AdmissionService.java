@@ -4,6 +4,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.chanaka.icbt.abchms.custom.communication.MessageTypes;
+import com.chanaka.icbt.abchms.custom.communication.clients.EmailClient;
+import com.chanaka.icbt.abchms.custom.communication.clients.SmsClient;
+import com.chanaka.icbt.abchms.custom.communication.messages.PatientAdmittedMessage;
+import com.chanaka.icbt.abchms.custom.communication.messages.PatientDischargedMessage;
+import com.chanaka.icbt.abchms.custom.communication.messages.PatientTransferredMessage;
 import com.chanaka.icbt.abchms.models.Admission;
 import com.chanaka.icbt.abchms.repositories.AdmissionRepository;
 import com.chanaka.icbt.abchms.repositories.BranchRepository;
@@ -35,7 +41,10 @@ public class AdmissionService {
 	public Admission store(Admission admission) {
 		admission.generateUuid();
 		admission.setAdmissionDate(new Date());
-		return admissionRepository.save(bindRelationships(admission));
+		Admission created = admissionRepository.save(bindRelationships(admission));
+		SmsClient.getInstance().sendMessage(new PatientAdmittedMessage(admission, MessageTypes.SMS));
+		EmailClient.getInstance().sendMessage(new PatientAdmittedMessage(admission, MessageTypes.EMAIL));
+		return created;
 	}
 
 	public Optional<Admission> find(String uuid) {
@@ -49,6 +58,8 @@ public class AdmissionService {
 			admission.setAdmissionDate(new Date());
 			admission.generateUuid();
 			admissionRepository.save(bindRelationships(admission));
+			SmsClient.getInstance().sendMessage(new PatientTransferredMessage(admission, MessageTypes.SMS));
+			EmailClient.getInstance().sendMessage(new PatientTransferredMessage(admission, MessageTypes.EMAIL));
 			return admission;
 		}
 		return null;
@@ -72,6 +83,9 @@ public class AdmissionService {
 			Admission dischargedAdmission = admission.get();
 			dischargedAdmission.setDischargedDate(new Date());
 			admissionRepository.save(bindRelationships(dischargedAdmission));
+			SmsClient.getInstance().sendMessage(new PatientDischargedMessage(dischargedAdmission, MessageTypes.SMS));
+			EmailClient.getInstance()
+					.sendMessage(new PatientDischargedMessage(dischargedAdmission, MessageTypes.EMAIL));
 			return dischargedAdmission;
 		}
 		return null;

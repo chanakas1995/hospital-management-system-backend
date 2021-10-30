@@ -10,4 +10,5 @@ public class WardOptionDTO {
 	private Integer id;
 	private String wardName;
 	private String doctorInCharge;
+	private Double pricePerDay;
 }
